@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Cadastro de Tutoriais</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="cadastro()">
+    <h1>Cadastro de Tutoriais</h1>
+
+    <div class="container">
+        <div class="row">
+            <div id="msg" class="col-sm-10 offset-sm-1 ">
+                <!--<div class="alert alert-warning">Contato não encontrado.</div>-->
+            </div>
+        </div>
+
+<div class="row">
+            <div id="msg" class="col-sm-2 offset-sm-10 ">
+                <a href="index.html"><input type="button" class="btn btn-warning" id="btnClear" value="Voltar Página Principal"></a>
+            </div>
+        </div>        
+
+    
+        <form id="form-tutorial">
+            <div class="form-group row">
+                <div class="col-sm-2">
+                    <label for="inputId">Id</label>
+                    <input type="text" class="form-control" id="inputId" placeholder="ID" disabled>
+                </div>
+                <div class="col-sm-4">
+                  <label for="inputNome">Site (*)</label>
+                  <select name="filtro_nome" id="filtro_nome" class="form-control">
+                        <option value="">Selecione o site</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="YouTube">YouTube</option>
+                    </select>
+                </div>
+              
+              <div class="col-sm-6">
+                    <label for="inputTitulo">Título (*)</label>
+                    <input type="text" class="form-control" id="inputTitulo" required placeholder="Título do Tutorial">
+                </div>
+            </div>
+                
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <label for="inputConteudo">Conteúdo (*)</label>
+                    <input type="text" class="form-control" id="inputConteudo" required placeholder=" ">
+                </div>
+            </div>
+            
+            <div class="form-group row">
+                <div class="col-sm-4">
+                    <small>(*) Campos obrigatórios</small>
+                </div>
+            </div>
+          <div class="form-group row">
+                <div class="col-sm-12">
+                    <input type="button" class="btn btn-success" id="btnInsert" value="Inserir">
+                    <input type="button" class="btn btn-warning" id="btnUpdate" value="Alterar">
+                    <input type="button" class="btn btn-danger" id="btnDelete" value="Excluir">
+                    <input type="button" class="btn btn-secondary" id="btnClear" value="Limpar Form">
+                   <a href="lista_tutoriais.html"><input type="button" class="btn btn-info" id="btnClear" value="Pesquisar Tutoriais"></a>
+                </div>
+            </div>
+        </form>
+
+       <div class="row">
+            <div class="col-sm-12">
+                <table id="grid-tutorial" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Site</th>
+                            <th scope="col">Titulo</th>
+                            <th scope="col">Conteúdo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-tutorial">
+                        <tr>
+                            <td scope="row">1</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+      </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="tutorial.js"></script>
+  <script>
+        function exibeTutorial() {
+            // Remove todas as linhas do corpo da tabela
+            $("#table-tutorial").html("");
+
+            // Popula a tabela com os registros do banco de dados
+            for (y = 0; y < db.data.length; y++) {
+                let tutorial = db.data[y];    
+                 $("#table-tutorial").append(`<tr>
+                        <td scope="row">${tutorial.id}</td>
+                        <td>${tutorial.nome}</td>
+                        <td>${tutorial.titulo}</td>
+                        <td>${tutorial.conteudo}</td>    
+                      </tr>`);
+            }
+        }
+
+        function cadastro() {
+            // Adiciona funções para tratar os eventos 
+            $("#btnInsert").click(function () {
+                // Verfica se o formulário está preenchido corretamente
+                if (!$('#form-tutorial')[0].checkValidity()) {
+                    displayMessage("Preencha o formulário corretamente.");
+                    return;
+                }
+
+                // Obtem os valores dos campos do formulário
+                let campoNome = $("#filtro_nome").val();
+                let campoTitulo = $('#inputTitulo').val();
+                let campoConteudo = $('#inputConteudo').val();
+                
+                let tutorial = { nome: campoNome, 
+                    titulo: campoTitulo,
+                    conteudo: campoConteudo };
+
+                insertTutorial(tutorial);
+
+                // Reexibe os contatos
+                exibeTutorial();
+
+                // Limpa o formulario
+                $("#form-tutorial")[0].reset();
+            });
+
+            // Intercepta o click do botão Alterar
+            $("#btnUpdate").click(function () {
+                // Obtem os valores dos campos do formulário
+                let campoId = $("#inputId").val();
+                if (campoId == "") {
+                    displayMessage("Selecione um tutorial cadastrado para ser alterado.");
+                    return;
+                }
+                let campoNome = $("#filtro_nome").val();
+                let campoTitulo = $("#inputTitulo").val();
+                let campoConteudo = $('#inputConteudo').val();
+
+                let tutorial = { nome: campoNome, 
+                    titulo: campoTitulo,
+                    conteudo: campoConteudo
+                    };
+
+                updateTutorial(parseInt(campoId), tutorial);
+
+                // Reexibe os contatos
+                exibeTutorial();
+
+                // Limpa o formulario
+                $("#form-tutorial")[0].reset();
+            });
+
+            // Intercepta o click do botão Excluir
+            $("#btnDelete").click(function () {
+                let campoId = $("#inputId").val();
+                if (campoId == "") {
+                    displayMessage("Selecione um tutorial cadastrado a ser excluído.");
+                    return;
+                }
+                deleteTutorial(parseInt(campoId));
+
+                // Reexibe os contatos
+                exibeTutorial();
+
+                // Limpa o formulario
+                $("#form-tutorial")[0].reset();
+            });
+
+            // Intercepta o click do botão Listar Contatos
+            $("#btnClear").click(function () {
+                $("#form-tutorial")[0].reset();
+            });
+
+            // Oculta a mensagem de aviso após alguns segundos
+            $('#msg').bind("DOMSubtreeModified", function () {
+                window.setTimeout(function () {
+                    $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                        $(this).remove();
+                    });
+                }, 5000);
+            });
+
+            // Preenche o formulário quando o usuario clicar em uma linha da tabela 
+            $("#grid-tutorial").on("click", "tr", function (e) {
+                let linhaTutorial = this;
+                colunas = linhaTutorial.querySelectorAll("td");
+
+                $("#inputId").val(colunas[0].innerText);
+                $("#filtro_nome").val(colunas[1].innerText);
+                $("#inputTitulo").val(colunas[2].innerText);
+                $("#inputConteudo").val(colunas[3].innerText);
+            });
+
+            exibeTutorial();
+        }
+    </script>   
+</body>
+</html>
