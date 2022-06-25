@@ -1,0 +1,221 @@
+ <!-- tiaw: cadastro dos sites + tutoriais de cada um  -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Cadastro de Sites</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="init()">
+    <h1>Cadastro dos Sites</h1>
+
+    <div class="container">
+        <div class="row">
+            <div id="msg" class="col-sm-10 offset-sm-1 ">
+                <!--<div class="alert alert-warning">Contato não encontrado.</div>-->
+            </div>
+        </div>
+
+        <form id="form-site">
+            <div class="form-group row">
+                <div class="col-sm-2">
+                    <label for="inputId">Id</label>
+                    <input type="text" class="form-control" id="inputId" placeholder="ID" disabled>
+                </div>
+                <div class="col-sm-5">
+                    <label for="inputNome">Site (*)</label>
+                    <input type="text" class="form-control" id="inputNome" required placeholder="Informe o nome do site/plataforma">
+                </div>
+          
+                <div class="col-sm-5">
+                    <label for="inputCategoria">Categoria</label>
+                    <select name="filtro_categoria" id="filtro_categoria" class="form-control">
+                        <option value="">Selecione uma categoria</option>
+                        <option value="Rede Social">Rede Social</option>
+                        <option value="Entretenimento">Entretenimento</option>
+                        <option value="Serviços">Serviços</option>
+                    </select>
+                </div>
+            </div>
+          
+            <div class="form-group row">    
+                <div class="col-sm-12">
+                    <label for="inputLink">Web Site (*)</label>
+                    <input type="text" class="form-control" id="inputLink" required placeholder="Web Site">
+                </div>
+              
+            </div>
+        
+          
+            <div class="form-group row">
+                <div class="col-sm-4">
+                    <small>(*) Campos obrigatórios</small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <input type="button" class="btn btn-success" id="btnInsert" value="Inserir">
+                    <input type="button" class="btn btn-warning" id="btnUpdate" value="Alterar">
+                    <input type="button" class="btn btn-danger" id="btnDelete" value="Excluir">
+                    <input type="button" class="btn btn-secondary" id="btnClear" value="Limpar Form">
+                   <a href="lista_sites.html"><input type="button" class="btn btn-info" id="btnClear" value="Pesquisar Sites"></a>
+                  
+                </div>
+        
+          <div class="col-sm-6" style="text-align: right;">
+                 <a href="cadastro_tutoriais.html"><input type="button" class="btn btn-dark" id="btnClear" value="Cadastrar Tutoriais"></a>
+    
+        </div>
+    </div>
+        </form>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <table id="grid-site" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Nome Site</th>
+                            <th scope="col">Categoria</th>
+                            <th scope="col">Link</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-site">
+                        <tr>
+                            <td scope="row">1</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        function exibeSite() {
+            // Remove todas as linhas do corpo da tabela
+            $("#table-site").html("");
+
+            // Popula a tabela com os registros do banco de dados
+            for (i = 0; i < db.data.length; i++) {
+                let site = db.data[i];    
+                $("#table-site").append(`<tr><td scope="row">${site.id}</td>
+                                                <td>${site.nome}</td>
+                                                <td>${site.categoria}</td>
+                                                <td>${site.website}</td>
+                                            </tr>`);
+            }
+        }
+
+        function init() {
+            // Adiciona funções para tratar os eventos 
+            $("#btnInsert").click(function () {
+                // Verfica se o formulário está preenchido corretamente
+                if (!$('#form-site')[0].checkValidity()) {
+                    displayMessage("Preencha o formulário corretamente.");
+                    return;
+                }
+
+                // Obtem os valores dos campos do formulário
+                let campoNome = $("#inputNome").val();
+                let campoCategoria = $('#filtro_categoria').val();
+                let campoLink = $('#inputLink').val();
+                
+                let site = { nome: campoNome, 
+                    categoria: campoCategoria,
+                    website: campoLink };
+
+                insertSite(site);
+
+                // Reexibe os contatos
+                exibeSite();
+
+                // Limpa o formulario
+                $("#form-site")[0].reset();
+            });
+
+            // Intercepta o click do botão Alterar
+            $("#btnUpdate").click(function () {
+                // Obtem os valores dos campos do formulário
+                let campoId = $("#inputId").val();
+                if (campoId == "") {
+                    displayMessage("Selecione um site cadastrado para ser alterado.");
+                    return;
+                }
+                let campoNome = $("#inputNome").val();
+                let campoCategoria = $("#filtro_categoria").val();
+                let campoLink = $('#inputLink').val();
+
+                let site = { nome: campoNome, 
+                    categoria: campoCategoria,
+                    website: campoLink
+                    };
+
+                updateSite(parseInt(campoId), site);
+
+                // Reexibe os contatos
+                exibeSite();
+
+                // Limpa o formulario
+                $("#form-site")[0].reset();
+            });
+
+            // Intercepta o click do botão Excluir
+            $("#btnDelete").click(function () {
+                let campoId = $("#inputId").val();
+                if (campoId == "") {
+                    displayMessage("Selecione um site cadastrado a ser excluído.");
+                    return;
+                }
+                deleteSite(parseInt(campoId));
+
+                // Reexibe os contatos
+                exibeSite();
+
+                // Limpa o formulario
+                $("#form-site")[0].reset();
+            });
+
+            // Intercepta o click do botão Listar Contatos
+            $("#btnClear").click(function () {
+                $("#form-site")[0].reset();
+            });
+
+            // Oculta a mensagem de aviso após alguns segundos
+            $('#msg').bind("DOMSubtreeModified", function () {
+                window.setTimeout(function () {
+                    $(".alert").fadeTo(500, 0).slideUp(500, function () {
+                        $(this).remove();
+                    });
+                }, 5000);
+            });
+
+            // Preenche o formulário quando o usuario clicar em uma linha da tabela 
+            $("#grid-site").on("click", "tr", function (e) {
+                let linhaSite = this;
+                colunas = linhaSite.querySelectorAll("td");
+
+                $("#inputId").val(colunas[0].innerText);
+                $("#inputNome").val(colunas[1].innerText);
+                $("#filtro_categoria").val(colunas[2].innerText);
+                $("#inputLink").val(colunas[3].innerText);
+            });
+
+            exibeSite();
+        }
+    </script>
+</body>
+</html>
