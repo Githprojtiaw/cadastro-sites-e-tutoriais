@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Listagem de Tutoriais</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">    
+</head>
+
+<body onload="ListaTutoriais()">
+    <h1>Listagem de Tutoriais</h1>
+
+    <div class="container">
+        <div class="row">
+            <div id="msg" class="col-sm-10 offset-sm-1 ">
+                <!--<div class="alert alert-warning">Contato não encontrado.</div>-->
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="msg" class="col-sm-2 offset-sm-10 ">
+                <a href="cadastro_tutoriais.html"><input type="button" class="btn btn-warning" id="btnClear" value="Cadastro Tutoriais"></a>
+            </div>
+        </div>        
+        
+        <form id="form-tutorial">            
+            <div class="form-group row">
+                <div class="col-sm-4">
+                  <select name="filtro_nome" id="filtro_nome" onchange="ListaTutoriais()"  class="form-control">
+                        <option value="">Selecione o Site</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="YouTube">YouTube</option>
+                    </select>
+                </div> 
+            </div>
+        </form>
+
+
+        <div class="row">
+            <div class="col-sm-12">
+                <table id="grid-tutorial" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Site</th>
+                            <th scope="col">Titulo</th>
+                            <th scope="col">Conteúdo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-tutorial">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="tutorial.js"></script>
+    <script>
+        // função para listar na tabela os contatos que estão associados aos filtros 
+        function ListaTutoriais() {
+            
+            // Obtem os dados informados pelo usuário nos filtros
+            let fn = document.getElementById('filtro_nome').value; 
+
+            // limpa a lista de contatos apresentados
+            $("#table-tutorial").empty();
+
+            // Popula a tabela com os registros do banco de dados
+            for (let cadastro_tutoriais = 0; cadastro_tutoriais < db.data.length; cadastro_tutoriais++) {
+                const tutorial = db.data[cadastro_tutoriais];
+
+                // Verifica se os dados do contato batem com os filtros
+                if ((tutorial.nome == fn) || (fn == '')) { 
+                    
+                    // Inclui o contato na tabela    
+                    $("#table-tutorial").append(`<tr>
+                        <td scope="row">${tutorial.id}</td>
+                        <td>${tutorial.nome}</td>
+                        <td>${tutorial.titulo}</td>
+                        <td>${tutorial.conteudo}</td>    
+                      </tr>`);
+                } 
+            }
+        }
+    </script>
+</body>
+</html>
